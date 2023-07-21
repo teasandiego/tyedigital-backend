@@ -1,0 +1,50 @@
+# we nee to create secret file => microk8s kubectl create secret docker-registry dev-tyedigital --docker-server=ghcr.io --docker-username=rajendros --docker-password=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 --docker-email=rajendro.sau@kushmanda.tech
+
+# mk create secret generic dev-tyedigital-server-secret --from-literal=.env='DB_PORT="31347"Db_PASSWORD="Kush@789#"Db_USERNAME="root"'
+
+# this one is right
+# mk delete secret dev-tyedigital-server-secret && mk create secret generic dev-tyedigital-server-secret --from-file=.env
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-tyedigital-server
+spec:
+  selector:
+    matchLabels:
+      app: dev-tyedigital-server
+  template:
+    metadata:
+      labels:
+        environment: dev-tyedigital-server
+        app: dev-tyedigital-server
+        namespace: dev-tyedigital-server      
+    spec:  
+      imagePullSecrets: 
+        - name: dev-mld-server-img-secret
+      containers:
+      - name: dev-tyedigital-server
+        image: ghcr.io/kushmanda-tech/tyedigital-api-dev:dev
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 6060
+        volumeMounts:
+        - name: my-secret-volume
+          mountPath: /app/.env
+          subPath: .env
+          readOnly: true
+      volumes:
+        - name: my-secret-volume
+          secret:
+            secretName: dev-tyedigital-server-secret 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-tyedigital-server
+spec:
+  selector:
+    app: dev-tyedigital-server
+  ports:
+  - port: 6060
+    targetPort: 6060

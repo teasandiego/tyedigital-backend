@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-tyedigital-phpmyadmin
+spec:
+  selector:
+    matchLabels:
+      app: dev-tyedigital-phpmyadmin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dev-tyedigital-phpmyadmin
+    spec:
+      containers:
+        - name: dev-tyedigital-phpmyadmin
+          image: phpmyadmin:latest
+          env:
+            - name: PMA_HOST
+              value: dev.tyedigital.org
+            - name: PMA_PORT
+              value: "31347"
+            - name: MYSQL_ROOT_PASSWORD
+              value: Kush@789#
+          ports:
+            - containerPort: 80
+              name: phpmyadmin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-tyedigital-phpmyadmin
+spec:
+  selector:
+    app: dev-tyedigital-phpmyadmin
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80

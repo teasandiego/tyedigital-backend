@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-tyedigital-phpmyadmin
+spec:
+  selector:
+    matchLabels:
+      app: test-tyedigital-phpmyadmin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: test-tyedigital-phpmyadmin
+    spec:
+      containers:
+        - name: test-tyedigital-phpmyadmin
+          image: phpmyadmin:latest
+          env:
+            - name: PMA_HOST
+              value: test.metastockpicker.com
+            - name: PMA_PORT
+              value: "31347"
+            - name: MYSQL_ROOT_PASSWORD
+              value: Kush@789#
+          ports:
+            - containerPort: 80
+              name: phpmyadmin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-tyedigital-phpmyadmin
+spec:
+  selector:
+    app: test-tyedigital-phpmyadmin
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80

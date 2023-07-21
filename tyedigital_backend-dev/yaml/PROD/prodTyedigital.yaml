@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-tyedigital-server
+spec:
+  selector:
+    matchLabels:
+      app: prod-tyedigital-server
+  template:
+    metadata:
+      labels:
+        environment: prod-tyedigital-server
+        app: prod-tyedigital-server
+        namespace: prod-tyedigital-server      
+    spec:  # we nee to create secret file => microk8s kubectl create secret docker-registry pord-tyedigital --docker-server=ghcr.io --docker-username=kushmanda --docker-password=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 --docker-email=rajendro.sau@kushmanda.tech
+      imagePullSecrets: 
+        - name: tyedigital
+      containers:
+      - name: prod-tyedigital-server
+        image: ghcr.io/kushmanda-tech/tyedigital-prod:prod
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 6060
+        volumeMounts:
+        - name: my-secret-volume
+          mountPath: /app/.env
+          subPath: .env
+          readOnly: true
+      volumes:
+        - name: my-secret-volume
+          secret:
+            secretName: prod-tyedigital-server-secret 
+      # logging:
+      #   driver: journald
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prod-tyedigital-server
+spec:
+  selector:
+    app: prod-tyedigital-server
+  ports:
+  - port: 6060
+    targetPort: 6060
